@@ -93,7 +93,7 @@ func main() {
 				from_userdata := c.Bool("from-userdata")
 				settings.Eip = c.String("elastic-ip")
 				settings.EipAllocationId = c.String("eip-allocation-id")
-				interval := c.Int("interval")
+				settings.Interval = c.Int("interval")
 
 				if from_userdata {
 					settings = initFromUserData()
@@ -103,7 +103,7 @@ func main() {
 					log.Fatal("elastic-ip and eip-allocation-id are required arguments.")
 				}
 
-				stealIpLoop(settings.Eip, settings.EipAllocationId, interval)
+				stealIpLoop(settings)
 			},
 		},
 		{

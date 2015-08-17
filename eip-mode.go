@@ -15,7 +15,11 @@ const (
 	REQ_TIMEOUT time.Duration = 5
 )
 
-func stealIpLoop(eip, eipAllocationId string, interval int) {
+func stealIpLoop(settings RemapSettings) {
+
+	eip := settings.Eip
+	eipAllocationId := settings.EipAllocationId
+	interval := settings.Interval
 
 	region, err := getRegion()
 	if err != nil {
