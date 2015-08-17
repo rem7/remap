@@ -40,6 +40,12 @@ func main() {
 			Usage:  "Get values from user data",
 			EnvVar: "REMAP_FROM_USERDATA",
 		},
+		cli.StringFlag{
+			Name:   "run-once",
+			Value:  "false",
+			Usage:  "use this if you want to run from a cronjob",
+			EnvVar: "REMAP_RUN_ONCE",
+		},
 	}
 
 	dnsFlags := []cli.Flag{
@@ -94,6 +100,7 @@ func main() {
 				settings.Eip = c.String("elastic-ip")
 				settings.EipAllocationId = c.String("eip-allocation-id")
 				settings.Interval = c.Int("interval")
+				settings.RunOnce = c.Bool("run-once")
 
 				if from_userdata {
 					settings = initFromUserData()
@@ -139,6 +146,7 @@ func main() {
 type RemapSettings struct {
 	Mode     string
 	Interval int
+	RunOnce  bool
 
 	// eip-mode
 	Eip             string

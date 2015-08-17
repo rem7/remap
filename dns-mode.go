@@ -26,7 +26,7 @@ func dnsLoop(settings RemapSettings) {
 
 		if usePublicIP {
 			log.Print("using-public-ip")
-			publicIP, err := getPublicIp()
+			publicIP, err := GetPublicIP()
 			if err != nil {
 				log.Printf("we dont have internet. keep looping until we do")
 				time.Sleep(5 * time.Second)
@@ -35,12 +35,12 @@ func dnsLoop(settings RemapSettings) {
 			myIP = publicIP
 		} else {
 			log.Print("using-local-ip")
-			localIP, err := getLocalIP()
+			privateIP, err := GetPrivateIP()
 			if err != nil {
 				log.Printf("can't find eth0?")
 				log.Fatal(err)
 			}
-			myIP = localIP
+			myIP = privateIP
 		}
 
 		log.Printf("IP: %s", myIP)

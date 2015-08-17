@@ -2,15 +2,14 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"time"
 )
 
 const (
-	SELF_CHECK      = "http://ident.me"
+	PUBLIC_IPV4     = "http://169.254.169.254/latest/meta-data/public-ipv4"
+	PRIVATE_IPV4    = "http://169.254.169.254/latest/meta-data/local-ipv4"
 	REGION_URL      = "http://169.254.169.254/latest/dynamic/instance-identity/document"
 	INSTANCE_ID_URL = "http://169.254.169.254/latest/meta-data/instance-id"
 	USER_DATA_URL   = "http://169.254.169.254/latest/user-data"
@@ -65,14 +64,22 @@ func getRegion() (string, error) {
 
 }
 
-func getPublicIp() (string, error) {
+func GetPrivateIP() (string, error) {
+	return getIP(PRIVATE_IPV4)
+}
+
+func GetPublicIP() (string, error) {
+	return getIP(PUBLIC_IPV4)
+}
+
+func getIP(URL string) (string, error) {
 
 	timeout := time.Duration(REQ_TIMEOUT * time.Second)
 	client := http.Client{
 		Timeout: timeout,
 	}
 
-	resp, err := client.Get(SELF_CHECK)
+	resp, err := client.Get(URL)
 	if err != nil {
 		return "", err
 	}
@@ -81,40 +88,5 @@ func getPublicIp() (string, error) {
 	body, err := ioutil.ReadAll(resp.Body)
 
 	return string(body), nil
-
-}
-
-func getLocalIP() (string, error) {
-
-	ipStr := ""
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return ipStr, err
-	}
-
-	for _, i := range ifaces {
-		if i.Name == "eth0" {
-			addrs, err := i.Addrs()
-			if err != nil {
-				return ipStr, err
-			}
-			for _, addr := range addrs {
-				var ip net.IP
-				switch v := addr.(type) {
-				case *net.IPNet:
-					ip = v.IP
-				case *net.IPAddr:
-					ip = v.IP
-				}
-
-				if ipv4 := ip.To4(); ipv4 != nil {
-					ipStr = ipv4.String()
-					return ipStr, nil
-				}
-			}
-		}
-	}
-
-	return "", errors.New("No IP found.")
 
 }

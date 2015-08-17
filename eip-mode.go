@@ -15,11 +15,7 @@ const (
 	REQ_TIMEOUT time.Duration = 5
 )
 
-func stealIpLoop(settings RemapSettings) {
-
-	eip := settings.Eip
-	eipAllocationId := settings.EipAllocationId
-	interval := settings.Interval
+func stealIpLoop(s RemapSettings) {
 
 	region, err := getRegion()
 	if err != nil {
@@ -35,23 +31,58 @@ func stealIpLoop(settings RemapSettings) {
 	log.Printf("Region: %s", region)
 	log.Printf("Instance: %s", instanceId)
 
-	for {
-
-		ip, err := getPublicIp()
+	if s.RunOnce {
+		_, err := updateIP(s, region, instanceId)
 		if err != nil {
-			log.Printf("error getting public IP: %+v", err)
+			log.Printf("Error updating IP.")
+			log.Fatal(err)
 		}
+	} else {
 
-		SLEEP_TIME := interval
-		if !eipMatches(ip, eip) {
-			log.Printf("My IP: %s", ip)
-			log.Printf("Public IP and EIP don't match. Stealing EIP. Assigning %s to %s", eip, instanceId)
-			SLEEP_TIME = interval + DELAY
-			stealIp(eipAllocationId, instanceId, region)
+		for {
+
+			SLEEP_TIME := s.Interval
+
+			updated, err := updateIP(s, region, instanceId)
+			if err != nil {
+				log.Printf("Error updating IP: %v", err)
+				log.Printf("trying again on next loop")
+			}
+
+			if updated {
+				SLEEP_TIME = s.Interval + DELAY
+			}
+
+			time.Sleep(time.Duration(SLEEP_TIME) * time.Second)
 		}
-
-		time.Sleep(time.Duration(SLEEP_TIME) * time.Second)
 	}
+
+}
+
+func updateIP(s RemapSettings, region, instanceId string) (bool, error) {
+
+	updated := false
+	eip := s.Eip
+	eipAllocationId := s.EipAllocationId
+
+	ip, err := GetPublicIP()
+	if err != nil {
+		log.Printf("error getting public IP: %+v", err)
+		return false, err
+	}
+
+	if !eipMatches(ip, eip) {
+		log.Printf("My IP: %s", ip)
+		log.Printf("Public IP and EIP don't match. Stealing EIP. Assigning %s to %s", eip, instanceId)
+		err := stealIp(eipAllocationId, instanceId, region)
+		if err != nil {
+			return false, err
+		}
+		updated = true
+		log.Printf("Updated EIP allocation succesfully")
+	}
+
+	return updated, nil
 
 }
 
