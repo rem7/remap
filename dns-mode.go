@@ -11,62 +11,78 @@ import (
 	"time"
 )
 
-func dnsLoop(settings RemapSettings) {
+func DNSMode(s RemapSettings) {
 
-	dnsName := settings.DNSName
-	usePublicIP := settings.UsePublicIP
-	ttl := settings.TTL
-	hostedZoneID := settings.HostedZoneID
-	interval := settings.Interval
+	log.Printf("DNS Mode running")
 
-	for {
-
-		SLEEP_TIME := 0
-		myIP := ""
-
-		if usePublicIP {
-			log.Print("using-public-ip")
-			publicIP, err := GetPublicIP()
-			if err != nil {
-				log.Printf("we dont have internet. keep looping until we do")
-				time.Sleep(5 * time.Second)
-				continue
-			}
-			myIP = publicIP
-		} else {
-			log.Print("using-local-ip")
-			privateIP, err := GetPrivateIP()
-			if err != nil {
-				log.Printf("can't find eth0?")
-				log.Fatal(err)
-			}
-			myIP = privateIP
-		}
-
-		log.Printf("IP: %s", myIP)
-
-		addrs, err := resolveName(dnsName)
+	if s.RunOnce {
+		_, err := DNSCheckAndUpdate(s)
 		if err != nil {
 			log.Fatal(err)
 		}
+	} else {
 
-		log.Printf("DNS %s resolves to %s", dnsName, addrs)
+		for {
 
-		match := addressInAddresses(myIP, addrs)
-		if match {
-			log.Print("matched")
-			SLEEP_TIME += interval
-		} else {
-			log.Print("not matched. updating DNS")
-			SLEEP_TIME += interval + int(ttl)
-			if err := updateDNS(hostedZoneID, dnsName, myIP, ttl); err != nil {
-				log.Fatalf("Error updating DNS. IAM Role setup?\n%s", err)
+			SLEEP_TIME := s.Interval
+
+			updated, err := DNSCheckAndUpdate(s)
+			if err != nil {
+				log.Print(err)
 			}
+
+			if updated {
+				SLEEP_TIME += s.TTL
+			}
+
+			time.Sleep(time.Duration(SLEEP_TIME) * time.Second)
 		}
 
-		log.Printf("Sleeping for %v", SLEEP_TIME)
-		time.Sleep(time.Duration(SLEEP_TIME) * time.Second)
 	}
+
+}
+
+func DNSCheckAndUpdate(s RemapSettings) (bool, error) {
+
+	updated := false
+
+	myIP, err := getCurrentIP(s.UsePublicIP)
+	if err != nil {
+		return false, err
+	}
+
+	addrs, err := resolveName(s.DNSName)
+	if err != nil {
+		return false, err
+	}
+
+	log.Printf("%v %v", myIP, addrs)
+
+	match := addressInAddresses(myIP, addrs)
+	if !match {
+		if err := updateDNS(s.HostedZoneID, s.DNSName, myIP, s.TTL); err != nil {
+			log.Printf("Error updating DNS. IAM Role setup?\n%s", err)
+			return false, err
+		}
+		updated = true
+	}
+
+	return updated, nil
+
+}
+
+func getCurrentIP(usePublicIP bool) (string, error) {
+
+	myIP := ""
+	var err error
+
+	if usePublicIP {
+		myIP, err = GetPublicIP()
+	} else {
+		myIP, err = GetPrivateIP()
+	}
+
+	return myIP, err
 
 }
 

@@ -15,7 +15,7 @@ const (
 	REQ_TIMEOUT time.Duration = 5
 )
 
-func stealIpLoop(s RemapSettings) {
+func EIPMode(s RemapSettings) {
 
 	region, err := getRegion()
 	if err != nil {

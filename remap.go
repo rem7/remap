@@ -85,6 +85,12 @@ func main() {
 			Usage:  "Get values from user data",
 			EnvVar: "REMAP_FROM_USERDATA",
 		},
+		cli.StringFlag{
+			Name:   "run-once",
+			Value:  "false",
+			Usage:  "use this if you want to run from a cronjob",
+			EnvVar: "REMAP_RUN_ONCE",
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -99,7 +105,7 @@ func main() {
 				from_userdata := c.Bool("from-userdata")
 				settings.Eip = c.String("elastic-ip")
 				settings.EipAllocationId = c.String("eip-allocation-id")
-				settings.Interval = c.Int("interval")
+				settings.Interval = int64(c.Int("interval"))
 				settings.RunOnce = c.Bool("run-once")
 
 				if from_userdata {
@@ -110,7 +116,7 @@ func main() {
 					log.Fatal("elastic-ip and eip-allocation-id are required arguments.")
 				}
 
-				stealIpLoop(settings)
+				EIPMode(settings)
 			},
 		},
 		{
@@ -126,8 +132,9 @@ func main() {
 				settings.HostedZoneID = c.String("hosted-zone-id")
 				settings.DNSName = c.String("dns-name")
 				settings.TTL = int64(c.Int("ttl"))
-				settings.Interval = c.Int("interval")
+				settings.Interval = int64(c.Int("interval"))
 				settings.UsePublicIP = c.Bool("use-public-ip")
+				settings.RunOnce = c.Bool("run-once")
 
 				if from_userdata {
 					settings = initFromUserData()
@@ -135,7 +142,7 @@ func main() {
 
 				log.Printf("%+v", settings)
 
-				dnsLoop(settings)
+				DNSMode(settings)
 			},
 		},
 	}
@@ -145,7 +152,7 @@ func main() {
 
 type RemapSettings struct {
 	Mode     string
-	Interval int
+	Interval int64
 	RunOnce  bool
 
 	// eip-mode
@@ -205,7 +212,7 @@ func initFromUserData() RemapSettings {
 		interval = 15
 		log.Printf("Error parsing REMAP_INTERVAL, settings to %v", interval)
 	}
-	remapSettings.Interval = interval
+	remapSettings.Interval = int64(interval)
 
 	return remapSettings
 
