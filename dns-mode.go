@@ -56,15 +56,18 @@ func DNSCheckAndUpdate(s RemapSettings) (bool, error) {
 		return false, err
 	}
 
-	log.Printf("%v %v", myIP, addrs)
+	log.Printf("Instance IP: %v A records in %v %v", myIP, s.DNSName, addrs)
 
 	match := addressInAddresses(myIP, addrs)
 	if !match {
+		log.Print("IP not in A records. Updating DNS entry")
 		if err := updateDNS(s.HostedZoneID, s.DNSName, myIP, s.TTL); err != nil {
 			log.Printf("Error updating DNS. IAM Role setup?\n%s", err)
 			return false, err
 		}
 		updated = true
+	} else {
+		log.Print("DNS entry points to instance IP. No changes nessesary")
 	}
 
 	return updated, nil

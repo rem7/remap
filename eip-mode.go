@@ -32,10 +32,16 @@ func EIPMode(s RemapSettings) {
 	log.Printf("Instance: %s", instanceId)
 
 	if s.RunOnce {
-		_, err := updateIP(s, region, instanceId)
+		updated, err := updateIP(s, region, instanceId)
 		if err != nil {
 			log.Printf("Error updating IP.")
 			log.Fatal(err)
+		}
+
+		if updated {
+			log.Print("Instance assigned EIP succesfully.")
+		} else {
+			log.Print("Instance already has this EIP.")
 		}
 	} else {
 

@@ -109,7 +109,7 @@ func main() {
 				settings.RunOnce = c.Bool("run-once")
 
 				if from_userdata {
-					settings = initFromUserData()
+					settings = initFromUserData(settings)
 				}
 
 				if settings.Eip == "" || settings.EipAllocationId == "" {
@@ -137,7 +137,7 @@ func main() {
 				settings.RunOnce = c.Bool("run-once")
 
 				if from_userdata {
-					settings = initFromUserData()
+					settings = initFromUserData(settings)
 				}
 
 				log.Printf("%+v", settings)
@@ -167,7 +167,7 @@ type RemapSettings struct {
 	UsePublicIP  bool
 }
 
-func initFromUserData() RemapSettings {
+func initFromUserData(remapSettings RemapSettings) RemapSettings {
 
 	a, e := getUserData()
 	if e != nil {
@@ -178,8 +178,6 @@ func initFromUserData() RemapSettings {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	remapSettings := RemapSettings{}
 
 	section, err := cfg.GetSection("")
 	if err != nil {
@@ -196,7 +194,7 @@ func initFromUserData() RemapSettings {
 	usePublicIP, err := section.Key("REMAP_USE_PUBLIC_IP").Bool()
 	if err != nil {
 		usePublicIP = true
-		log.Printf("Error parsing REMAP_USE_PUBLIC_IP, settings to %s", usePublicIP)
+		log.Printf("Error parsing REMAP_USE_PUBLIC_IP, settings to %v", usePublicIP)
 	}
 	remapSettings.UsePublicIP = usePublicIP
 
