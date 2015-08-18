@@ -169,7 +169,7 @@ type RemapSettings struct {
 
 func initFromUserData(remapSettings RemapSettings) RemapSettings {
 
-	a, e := getUserData()
+	a, e := GetUserData()
 	if e != nil {
 		log.Fatal(e)
 	}

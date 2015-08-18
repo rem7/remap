@@ -35,15 +35,15 @@ func getStringData(endpoint string) (string, error) {
 	return string(data), nil
 }
 
-func getInstanceId() (string, error) {
+func GetInstanceId() (string, error) {
 	return getStringData(INSTANCE_ID_URL)
 }
 
-func getUserData() (string, error) {
+func GetUserData() (string, error) {
 	return getStringData(USER_DATA_URL)
 }
 
-func getRegion() (string, error) {
+func GetRegion() (string, error) {
 
 	resp, err := http.Get(REGION_URL)
 	if err != nil {

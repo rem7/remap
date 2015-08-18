@@ -17,12 +17,12 @@ const (
 
 func EIPMode(s RemapSettings) {
 
-	region, err := getRegion()
+	region, err := GetRegion()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	instanceId, err := getInstanceId()
+	instanceId, err := GetInstanceId()
 	if err != nil {
 		log.Fatal(err)
 	}
