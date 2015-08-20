@@ -11,5 +11,5 @@ func LogPrintf(format string, a ...interface{}) (int, error) {
 	var args []interface{}
 	args = append(args, timestamp)
 	args = append(args, a...)
-	return fmt.Fprintf(os.Stdout, "[%v] "+format, args...)
+	return fmt.Fprintf(os.Stdout, "[%v] "+format+"\n", args...)
 }
