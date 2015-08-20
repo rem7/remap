@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	log.Printf("[remap started]")
+	LogPrintf("[remap started]")
 
 	app := cli.NewApp()
 	app.Name = "remap"
@@ -140,7 +140,7 @@ func main() {
 					settings = initFromUserData(settings)
 				}
 
-				log.Printf("%+v", settings)
+				LogPrintf("%+v", settings)
 
 				DNSMode(settings)
 			},
@@ -194,21 +194,21 @@ func initFromUserData(remapSettings RemapSettings) RemapSettings {
 	usePublicIP, err := section.Key("REMAP_USE_PUBLIC_IP").Bool()
 	if err != nil {
 		usePublicIP = true
-		log.Printf("Error parsing REMAP_USE_PUBLIC_IP, settings to %v", usePublicIP)
+		LogPrintf("Error parsing REMAP_USE_PUBLIC_IP, settings to %v", usePublicIP)
 	}
 	remapSettings.UsePublicIP = usePublicIP
 
 	ttl, err := section.Key("REMAP_TTL").Int()
 	if err != nil {
 		ttl = 300
-		log.Printf("Error parsing REMAP_TTL, settings to %v", ttl)
+		LogPrintf("Error parsing REMAP_TTL, settings to %v", ttl)
 	}
 	remapSettings.TTL = int64(ttl)
 
 	interval, err := section.Key("REMAP_INTERVAL").Int()
 	if err != nil {
 		interval = 15
-		log.Printf("Error parsing REMAP_INTERVAL, settings to %v", interval)
+		LogPrintf("Error parsing REMAP_INTERVAL, settings to %v", interval)
 	}
 	remapSettings.Interval = int64(interval)
 

@@ -27,21 +27,21 @@ func EIPMode(s RemapSettings) {
 		log.Fatal(err)
 	}
 
-	log.Printf("Running on EIP mode")
-	log.Printf("Region: %s", region)
-	log.Printf("Instance: %s", instanceId)
+	LogPrintf("Running on EIP mode")
+	LogPrintf("Region: %s", region)
+	LogPrintf("Instance: %s", instanceId)
 
 	if s.RunOnce {
 		updated, err := updateIP(s, region, instanceId)
 		if err != nil {
-			log.Printf("Error updating IP.")
+			LogPrintf("Error updating IP.")
 			log.Fatal(err)
 		}
 
 		if updated {
-			log.Print("Instance assigned EIP succesfully.")
+			LogPrintf("Instance assigned EIP succesfully.")
 		} else {
-			log.Print("Instance already has this EIP.")
+			LogPrintf("Instance already has this EIP.")
 		}
 	} else {
 
@@ -51,8 +51,8 @@ func EIPMode(s RemapSettings) {
 
 			updated, err := updateIP(s, region, instanceId)
 			if err != nil {
-				log.Printf("Error updating IP: %v", err)
-				log.Printf("trying again on next loop")
+				LogPrintf("Error updating IP: %v", err)
+				LogPrintf("trying again on next loop")
 			}
 
 			if updated {
@@ -73,19 +73,19 @@ func updateIP(s RemapSettings, region, instanceId string) (bool, error) {
 
 	ip, err := GetPublicIP()
 	if err != nil {
-		log.Printf("error getting public IP: %+v", err)
+		LogPrintf("error getting public IP: %+v", err)
 		return false, err
 	}
 
 	if !eipMatches(ip, eip) {
-		log.Printf("My IP: %s", ip)
-		log.Printf("Public IP and EIP don't match. Stealing EIP. Assigning %s to %s", eip, instanceId)
+		LogPrintf("My IP: %s", ip)
+		LogPrintf("Public IP and EIP don't match. Stealing EIP. Assigning %s to %s", eip, instanceId)
 		err := stealIp(eipAllocationId, instanceId, region)
 		if err != nil {
 			return false, err
 		}
 		updated = true
-		log.Printf("Updated EIP allocation succesfully")
+		LogPrintf("Updated EIP allocation succesfully")
 	}
 
 	return updated, nil
@@ -104,7 +104,7 @@ func stealIp(eipAllocationId, instanceId, region string) error {
 		InstanceId:         aws.String(instanceId),
 	}
 
-	log.Printf("Associating address...")
+	LogPrintf("Associating address...")
 	resp, err := svc.AssociateAddress(params)
 
 	if err != nil {

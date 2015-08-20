@@ -13,7 +13,7 @@ import (
 
 func DNSMode(s RemapSettings) {
 
-	log.Printf("DNS Mode running")
+	LogPrintf("DNS Mode running")
 
 	if s.RunOnce {
 		_, err := DNSCheckAndUpdate(s)
@@ -28,7 +28,7 @@ func DNSMode(s RemapSettings) {
 
 			updated, err := DNSCheckAndUpdate(s)
 			if err != nil {
-				log.Print(err)
+				LogPrintf(err.Error())
 			}
 
 			if updated {
@@ -56,18 +56,18 @@ func DNSCheckAndUpdate(s RemapSettings) (bool, error) {
 		return false, err
 	}
 
-	log.Printf("Instance IP: %v A records in %v %v", myIP, s.DNSName, addrs)
+	LogPrintf("Instance IP: %v A records in %v %v", myIP, s.DNSName, addrs)
 
 	match := addressInAddresses(myIP, addrs)
 	if !match {
-		log.Print("IP not in A records. Updating DNS entry")
+		LogPrintf("IP not in A records. Updating DNS entry")
 		if err := updateDNS(s.HostedZoneID, s.DNSName, myIP, s.TTL); err != nil {
-			log.Printf("Error updating DNS. IAM Role setup?\n%s", err)
+			LogPrintf("Error updating DNS. IAM Role setup?\n%s", err)
 			return false, err
 		}
 		updated = true
 	} else {
-		log.Print("DNS entry points to instance IP. No changes nessesary")
+		LogPrintf("DNS entry points to instance IP. No changes nessesary")
 	}
 
 	return updated, nil
