@@ -81,6 +81,10 @@ ubuntu@remap-test:~$ remap dns-mode --hosted-zone-id "XXXXXXXXXXXX" --dns-name "
 ```
 
 ```bash
+# if you store the environment variables in the user-data of the instance
+# remap will read from there
+# REMAP_ELASTIC_IP=54.88.113.3
+# REMAP_EIP_ALLOCATION_ID=eipalloc-123abc
 ubuntu@remap-test:~$ remap eip-mode --run-once true --from-userdata true
 ```
 
