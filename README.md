@@ -31,8 +31,8 @@ REMAP_DNS_NAME="my-route53.domain.com"
 REMAP_USE_PUBLIC_IP="false"
 ```
 
-### IAM Role/User credentials needed:
-eip-mode only
+## IAM Role/User credentials needed:
+###eip-mode only
 ```json
 {
     "Version": "2012-10-17",
@@ -50,7 +50,8 @@ eip-mode only
     ]
 }
 ```
-dns-mode
+
+### dns-mode
 ```json
 {
     "Version": "2012-10-17",
@@ -78,6 +79,11 @@ ubuntu@remap-test:~$ remap dns-mode --hosted-zone-id "XXXXXXXXXXXX" --dns-name "
 2015/08/18 16:31:25 Instance IP: 10.179.1.235 A records in test.example.com [10.179.1.235]
 2015/08/18 16:31:25 DNS entry points to instance IP. No changes nessesary
 ```
+
+```bash
+ubuntu@remap-test:~$ remap eip-mode --run-once true --from-userdata true
+```
+
 
 Added libraries via subtrees
 ```bash
