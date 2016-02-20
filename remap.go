@@ -46,6 +46,12 @@ func main() {
 			Usage:  "use this if you want to run from a cronjob",
 			EnvVar: "REMAP_RUN_ONCE",
 		},
+		cli.StringFlag{
+			Name:   "force",
+			Value:  "false",
+			Usage:  "use this if you want to force update",
+			EnvVar: "REMAP_FORCE",
+		},
 	}
 
 	dnsFlags := []cli.Flag{
@@ -91,6 +97,12 @@ func main() {
 			Usage:  "use this if you want to run from a cronjob",
 			EnvVar: "REMAP_RUN_ONCE",
 		},
+		cli.StringFlag{
+			Name:   "force",
+			Value:  "false",
+			Usage:  "use this if you want to force update",
+			EnvVar: "REMAP_FORCE",
+		},
 	}
 
 	app.Commands = []cli.Command{
@@ -107,6 +119,7 @@ func main() {
 				settings.EipAllocationId = c.String("eip-allocation-id")
 				settings.Interval = int64(c.Int("interval"))
 				settings.RunOnce = c.Bool("run-once")
+				settings.Force = c.Bool("force")
 
 				if from_userdata {
 					settings = initFromUserData(settings)
@@ -135,6 +148,7 @@ func main() {
 				settings.Interval = int64(c.Int("interval"))
 				settings.UsePublicIP = c.Bool("use-public-ip")
 				settings.RunOnce = c.Bool("run-once")
+				settings.Force = c.Bool("force")
 
 				if from_userdata {
 					settings = initFromUserData(settings)
@@ -154,6 +168,7 @@ type RemapSettings struct {
 	Mode     string
 	Interval int64
 	RunOnce  bool
+	Force    bool
 
 	// eip-mode
 	Eip             string

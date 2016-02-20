@@ -77,7 +77,7 @@ func updateIP(s RemapSettings, region, instanceId string) (bool, error) {
 		return false, err
 	}
 
-	if !eipMatches(ip, eip) {
+	if !eipMatches(ip, eip) || s.Force {
 		LogPrintf("My IP: %s", ip)
 		LogPrintf("Public IP and EIP don't match. Stealing EIP. Assigning %s to %s", eip, instanceId)
 		err := stealIp(eipAllocationId, instanceId, region)
