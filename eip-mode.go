@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"log"
 	"time"
@@ -80,7 +81,7 @@ func updateIP(s RemapSettings, region, instanceId string) (bool, error) {
 	if !eipMatches(ip, eip) || s.Force {
 		LogPrintf("My IP: %s", ip)
 		LogPrintf("Public IP and EIP don't match. Stealing EIP. Assigning %s to %s", eip, instanceId)
-		err := stealIp(eipAllocationId, instanceId, region)
+		err := stealIp(eipAllocationId, instanceId, region, s.Force)
 		if err != nil {
 			return false, err
 		}
@@ -92,16 +93,20 @@ func updateIP(s RemapSettings, region, instanceId string) (bool, error) {
 
 }
 
-func stealIp(eipAllocationId, instanceId, region string) error {
+func stealIp(eipAllocationId, instanceId, region string, force bool) error {
 
-	config := &aws.Config{Region: aws.String(region)}
-	svc := ec2.New(config)
+	sess, err := session.NewSession(&aws.Config{Region: aws.String(region)})
+	svc := ec2.New(sess)
 
 	params := &ec2.AssociateAddressInput{
 		AllocationId:       aws.String(eipAllocationId),
 		AllowReassociation: aws.Bool(true),
 		DryRun:             aws.Bool(false),
 		InstanceId:         aws.String(instanceId),
+	}
+
+	if force {
+		params.AllowReassociation = aws.Bool(true)
 	}
 
 	LogPrintf("Associating address...")
